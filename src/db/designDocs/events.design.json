@@ -1,0 +1,29 @@
+{
+    "_id": "_design/events",
+    "language": "query",
+    "indexes": {
+        "by_group": {
+            "index": {
+                "fields": [
+                    "groupId"
+                ]
+            }
+        },
+        "by_date": {
+            "index": {
+                "fields": [
+                    "date",
+                    "groupId"
+                ]
+            }
+        },
+        "by_creator": {
+            "index": {
+                "fields": [
+                    "creatorId",
+                    "date"
+                ]
+            }
+        }
+    }
+}

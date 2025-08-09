@@ -1,0 +1,35 @@
+{
+    "name": "offline-mvp-backend",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "node --loader ts-node/esm --no-warnings src/server.ts",
+        "build": "tsc",
+        "start": "node dist/server.js",
+        "init:couch": "node --loader ts-node/esm --no-warnings scripts/init-couch.ts",
+        "lint": "eslint .",
+        "format": "prettier -w .",
+        "test": "jest"
+    },
+    "jest": {
+        "testEnvironment": "node"
+    },
+    "dependencies": {
+        "@fastify/cors": "^11.1.0",
+        "@fastify/jwt": "^9.1.0",
+        "fastify": "^5.4.0",
+        "nano": "^10.1.4",
+        "nanoid": "^5.0.7",
+        "zod": "^3.23.8"
+    },
+    "devDependencies": {
+        "@types/node": "^20.14.10",
+        "eslint": "^9.7.0",
+        "jest": "^30.0.5",
+        "node-fetch": "^3.3.2",
+        "prettier": "^3.3.2",
+        "ts-node": "^10.9.2",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.4.5"
+    }
+}
