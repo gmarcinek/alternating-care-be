@@ -22,7 +22,7 @@ export async function eventsRoutes(app: FastifyInstance) {
     { preHandler: requireRole("groupId", ["viewer", "member", "admin"]) },
     async (req, rep) => {
       const { groupId } = req.params as any;
-      const { from, to, limit = "1000", skip = "0" } = req.query as any;
+      const { from, to, limit = "10000", skip = "0" } = req.query as any;
       const db = nano.use(tenantDbName(groupId));
 
       const selector: any = { groupId };

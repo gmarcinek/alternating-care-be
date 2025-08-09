@@ -1,5 +1,6 @@
 import { nano, ensureDb } from "../src/db/couchAdmin.js";
 import { env } from "../src/config/env.js";
+import groupsDesign from "../src/db/designDocs/groups.design.json" with { type: "json" };
 
 async function main() {
   const baseUrl = env.COUCHDB_URL; // bez admin:admin@
@@ -14,7 +15,21 @@ async function main() {
     );
 
   // ensure groups db
-  await ensureDb("groups");
+  const groupsDb = await ensureDb("groups");
+
+  // Install groups design document
+  try {
+    const existing = await groupsDb.get(groupsDesign._id);
+    await groupsDb.insert({ ...groupsDesign, _rev: (existing as any)._rev });
+    console.log("Updated groups design document");
+  } catch (e: any) {
+    if (e?.statusCode === 404) {
+      await groupsDb.insert(groupsDesign as any);
+      console.log("Created groups design document");
+    } else {
+      throw e;
+    }
+  }
 
   // enable CORS
   const baseConfig = `${env.COUCHDB_URL}/_node/_local/_config`;

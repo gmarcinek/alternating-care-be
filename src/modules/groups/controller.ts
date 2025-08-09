@@ -27,21 +27,41 @@ export async function groupsRoutes(app: FastifyInstance) {
 
   app.get("/groups/mine", async (req, rep) => {
     const user = (req as any).user;
+    console.log("=== DEBUG /groups/mine ===");
+    console.log("User:", user);
+
     const db = await groupsDb();
+    console.log("DB connected");
+
     const result = await db.find({
-      selector: {
-        type: "group",
-        "members.userId": user.sub,
-      },
-      limit: 1000,
+      selector: { type: "group" },
+      limit: 10000,
     } as any);
-    const groups = (result as any).docs.map((d: any) => ({
+
+    console.log("All groups found:", result.docs?.length || 0);
+    console.log("Groups:", result.docs);
+
+    const userGroups = (result as any).docs.filter((group: any) => {
+      const isMember = group.members?.some(
+        (member: any) => member.userId === user.sub
+      );
+      console.log(
+        `Group ${group.name}: isMember=${isMember}, userSub=${user.sub}`
+      );
+      return isMember;
+    });
+
+    console.log("User groups after filter:", userGroups);
+
+    const groups = userGroups.map((d: any) => ({
       id: d._id,
       name: d.name,
       ownerId: d.ownerId,
       members: d.members,
       createdAt: d.createdAt,
     }));
+
+    console.log("Final response:", groups);
     return rep.send(groups);
   });
 

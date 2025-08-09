@@ -1,0 +1,22 @@
+{
+    "_id": "_design/groups",
+    "language": "query",
+    "indexes": {
+        "by_member": {
+            "index": {
+                "fields": [
+                    "type",
+                    "members.userId"
+                ]
+            }
+        },
+        "by_owner": {
+            "index": {
+                "fields": [
+                    "type",
+                    "ownerId"
+                ]
+            }
+        }
+    }
+}
