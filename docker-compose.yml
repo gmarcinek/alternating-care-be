@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   couchdb:
     image: couchdb:3
@@ -11,12 +9,19 @@ services:
       - "5984:5984"
     volumes:
       - couchdb-data:/opt/couchdb/data
+      - ./couchdb/local.d/local.ini:/opt/couchdb/etc/local.d/local.ini:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5984/_up"]
       interval: 5s
-      timeout: 2s
-      retries: 30
+      timeout: 3s
+      retries: 60
+      start_period: 20s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   couchdb-init:
     image: curlimages/curl:8.8.0
@@ -30,6 +35,9 @@ services:
         curl -s -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} -X PUT http://couchdb:5984/_replicator >/dev/null || true &&
         curl -s -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} -X PUT http://couchdb:5984/_global_changes >/dev/null || true &&
         curl -s -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} -X PUT http://couchdb:5984/groups >/dev/null || true &&
+        curl -s -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} -H 'Content-Type: application/json' -X PUT http://couchdb:5984/_node/_local/_config/log/level -d '\"error\"' >/dev/null || true &&
+        curl -s -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} -H 'Content-Type: application/json' -X PUT http://couchdb:5984/_node/_local/_config/search/enabled -d '\"false\"' >/dev/null || true &&
+        curl -s -u ${COUCHDB_USER}:${COUCHDB_PASSWORD} -X DELETE http://couchdb:5984/_node/_local/_config/search/clouseau_nodes >/dev/null || true &&
         echo 'Init done.'
       "
     environment:
@@ -45,7 +53,6 @@ services:
     env_file:
       - .env
     environment:
-      # URL CouchDB wewnątrz sieci Dockera
       - COUCHDB_URL=http://couchdb:5984
       - NODE_ENV=production
     ports:
